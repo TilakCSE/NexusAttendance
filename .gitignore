@@ -1,0 +1,39 @@
+# ========================
+# ROOT & ENVIRONMENTS
+# ========================
+.venv/
+env/
+venv/
+.env
+.env.local
+.env.*.local
+
+# ========================
+# NEXT.JS FRONTEND
+# ========================
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/.eslintcache
+
+# ========================
+# PYTHON BACKEND
+# ========================
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# ========================
+# DATABASE & SENSITIVE
+# ========================
+backend/attendance.db
+*.db
+*.sqlite3
+
+# ========================
+# OS & EDITOR FILES
+# ========================
+.DS_Store
+.vscode/
+.idea/
