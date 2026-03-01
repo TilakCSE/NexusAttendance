@@ -6,7 +6,7 @@ import csv
 from fastapi.responses import FileResponse
 
 from ai.vision import AttendanceRecognizer
-from core.database import init_db, add_user, get_known_faces, get_recent_logs
+from core.database import init_db, add_user, get_known_faces, get_recent_logs, get_system_stats
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -93,3 +93,8 @@ async def export_logs():
             writer.writerow([log["name"], log["time"]])
             
     return FileResponse(path=file_path, filename="Nexus_Attendance_Report.csv", media_type='text/csv')
+
+@app.get("/api/admin/stats")
+async def fetch_system_stats():
+    """Returns core metrics for the management dashboard."""
+    return get_system_stats()

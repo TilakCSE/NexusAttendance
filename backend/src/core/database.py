@@ -90,3 +90,17 @@ def get_recent_logs(limit=15):
     
     logs = [{"name": r[0], "time": r[1]} for r in rows]
     return logs
+
+def get_system_stats():
+    """Calculates total metrics for the Admin dashboard."""
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    
+    c.execute('SELECT COUNT(*) FROM users')
+    total_users = c.fetchone()[0]
+    
+    c.execute('SELECT COUNT(*) FROM attendance_logs')
+    total_logs = c.fetchone()[0]
+    
+    conn.close()
+    return {"total_users": total_users, "total_logs": total_logs}

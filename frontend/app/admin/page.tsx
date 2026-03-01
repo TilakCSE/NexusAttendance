@@ -1,17 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Trash2, ArrowLeft, Download, ShieldCheck, Database } from "lucide-react";
+import { Trash2, ArrowLeft, Download, ShieldCheck, Database, Users, Activity, Fingerprint } from "lucide-react";
 import Link from "next/link";
 
 export default function AdminPortal() {
   const [users, setUsers] = useState<any[]>([]);
+  const [stats, setStats] = useState({ total_users: 0, total_logs: 0 });
   const [isExporting, setIsExporting] = useState(false);
 
-  const fetchUsers = async () => {
+  const fetchData = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/admin/users");
-      setUsers(await res.json());
+      const [usersRes, statsRes] = await Promise.all([
+        fetch("http://127.0.0.1:8000/api/admin/users"),
+        fetch("http://127.0.0.1:8000/api/admin/stats")
+      ]);
+      setUsers(await usersRes.json());
+      setStats(await statsRes.json());
     } catch (err) {
       console.error("Failed to fetch Nexus core data.");
     }
@@ -20,7 +25,7 @@ export default function AdminPortal() {
   const deleteUser = async (name: string) => {
     if (!confirm(`WARNING: Permanently purge biometric record for [${name}]?`)) return;
     await fetch(`http://127.0.0.1:8000/api/admin/users/${name}`, { method: "DELETE" });
-    fetchUsers();
+    fetchData();
   };
 
   const handleExport = () => {
@@ -29,11 +34,11 @@ export default function AdminPortal() {
     setTimeout(() => setIsExporting(false), 2000);
   };
 
-  useEffect(() => { fetchUsers(); }, []);
+  useEffect(() => { fetchData(); }, []);
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-200 p-8 md:p-12 font-mono selection:bg-emerald-500/30">
-      <div className="max-w-5xl mx-auto space-y-10">
+      <div className="max-w-6xl mx-auto space-y-10">
         
         {/* Header Console */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-slate-800 pb-8">
@@ -57,11 +62,46 @@ export default function AdminPortal() {
           </button>
         </div>
 
+        {/* Analytics Deck */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-slate-900/40 border border-slate-800 p-6 rounded-xl backdrop-blur-md flex items-center gap-6">
+            <div className="p-4 bg-emerald-500/10 text-emerald-500 rounded-lg border border-emerald-500/20">
+              <Users size={24} />
+            </div>
+            <div>
+              <div className="text-3xl font-bold font-sans text-slate-100">{stats.total_users}</div>
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Total Identities</div>
+            </div>
+          </div>
+
+          <div className="bg-slate-900/40 border border-slate-800 p-6 rounded-xl backdrop-blur-md flex items-center gap-6">
+            <div className="p-4 bg-cyan-500/10 text-cyan-500 rounded-lg border border-cyan-500/20">
+              <Fingerprint size={24} />
+            </div>
+            <div>
+              <div className="text-3xl font-bold font-sans text-slate-100">{stats.total_logs}</div>
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Lifetime Scans</div>
+            </div>
+          </div>
+
+          <div className="bg-slate-900/40 border border-slate-800 p-6 rounded-xl backdrop-blur-md flex items-center gap-6">
+            <div className="p-4 bg-slate-800 text-emerald-400 rounded-lg border border-slate-700">
+              <Activity size={24} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.8)]"></div>
+                <div className="text-xl font-bold font-sans text-emerald-400">ONLINE</div>
+              </div>
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest mt-2">Vision Node Status</div>
+            </div>
+          </div>
+        </div>
+
         {/* Biometric Registry Table */}
         <div className="bg-slate-900/40 border border-slate-800 rounded-xl overflow-hidden shadow-2xl shadow-black/50">
           <div className="px-8 py-4 bg-slate-900/80 border-b border-slate-800 flex justify-between items-center">
             <span className="text-xs text-slate-500 uppercase tracking-widest">Active Biometric Profiles</span>
-            <span className="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full">{users.length} IDENTITIES</span>
           </div>
 
           <div className="overflow-x-auto">
